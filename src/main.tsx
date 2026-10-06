@@ -6,6 +6,9 @@ import { db } from './db/db'
 import { seedIfNeeded } from './db/seed'
 import './index.css'
 
+// Ask the browser not to evict our data (best-effort; may be ignored).
+void navigator.storage?.persist?.().catch(() => {})
+
 // Seed on first run (no-op afterwards), then render.
 seedIfNeeded(db)
   .catch((err) => console.error('Seeding failed', err))

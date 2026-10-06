@@ -5,6 +5,7 @@ import ExerciseDetail from './features/exercises/ExerciseDetail'
 import ExercisesScreen from './features/exercises/ExercisesScreen'
 import HistoryDetail from './features/history/HistoryDetail'
 import HistoryScreen from './features/history/HistoryScreen'
+import SettingsScreen from './features/settings/SettingsScreen'
 import ActiveWorkout from './features/workout/ActiveWorkout'
 import TemplateEditor from './features/templates/TemplateEditor'
 import TemplatesScreen from './features/templates/TemplatesScreen'
@@ -15,10 +16,6 @@ const tabs = [
   { to: '/exercises', label: 'Exercises' },
   { to: '/settings', label: 'Settings' },
 ]
-
-function Placeholder({ title }: { title: string }) {
-  return <h1 className="p-4 text-2xl font-bold">{title}</h1>
-}
 
 export default function App() {
   const { pathname } = useLocation()
@@ -44,7 +41,7 @@ export default function App() {
           <Route path="/history/:id" element={<HistoryDetail />} />
           <Route path="/exercises" element={<ExercisesScreen />} />
           <Route path="/exercises/:id" element={<ExerciseDetail />} />
-          <Route path="/settings" element={<Placeholder title="Settings" />} />
+          <Route path="/settings" element={<SettingsScreen />} />
         </Routes>
       </main>
       {!editing && (

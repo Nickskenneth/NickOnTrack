@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../../db/db'
 import { getActiveSession, startSessionFromTemplate } from '../../db/queries'
 import type { Template } from '../../db/types'
+import BackupReminder from '../settings/BackupReminder'
 import { duplicateTemplate } from './editorLogic'
 
 export default function TemplatesScreen() {
@@ -32,6 +33,8 @@ export default function TemplatesScreen() {
   return (
     <div className="p-4">
       <h1 className="mb-4 text-2xl font-bold">Workout</h1>
+
+      <BackupReminder />
 
       {active && (
         <Link
