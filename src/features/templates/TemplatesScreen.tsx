@@ -1,14 +1,22 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../../db/db'
+import { getActiveSession, startSessionFromTemplate } from '../../db/queries'
 import type { Template } from '../../db/types'
 import { duplicateTemplate } from './editorLogic'
 
 export default function TemplatesScreen() {
+  const navigate = useNavigate()
   const templates = useLiveQuery(
     async () => (await db.templates.toArray()).sort((a, b) => a.createdAt - b.createdAt),
     [],
   )
+  const active = useLiveQuery(async () => (await getActiveSession()) ?? null, [])
+
+  async function start(t: Template) {
+    const session = await startSessionFromTemplate(t.id)
+    navigate(`/workout/${session.id}`)
+  }
 
   async function duplicate(t: Template) {
     await db.templates.add(duplicateTemplate(t))
@@ -24,6 +32,17 @@ export default function TemplatesScreen() {
   return (
     <div className="p-4">
       <h1 className="mb-4 text-2xl font-bold">Workout</h1>
+
+      {active && (
+        <Link
+          to={`/workout/${active.id}`}
+          className="mb-4 flex min-h-14 items-center justify-between rounded-xl bg-emerald-500 px-4 font-semibold text-black"
+        >
+          <span className="truncate">Resume: {active.name}</span>
+          <span aria-hidden>&rarr;</span>
+        </Link>
+      )}
+
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-neutral-500">
         Templates
       </h2>
@@ -40,7 +59,14 @@ export default function TemplatesScreen() {
             {t.note && (
               <p className="mt-1 line-clamp-1 text-sm text-neutral-500">{t.note.split('\n')[0]}</p>
             )}
-            <div className="mt-3 flex gap-2">
+            <button
+              className="mt-3 min-h-12 w-full rounded-lg bg-emerald-500 font-semibold text-black disabled:opacity-30"
+              disabled={!!active}
+              onClick={() => start(t)}
+            >
+              {active ? 'Finish current workout first' : 'Start workout'}
+            </button>
+            <div className="mt-2 flex gap-2">
               <Link to={`/templates/${t.id}`} className={`${small} flex items-center`}>
                 Edit
               </Link>

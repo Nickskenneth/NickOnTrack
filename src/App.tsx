@@ -1,4 +1,7 @@
-import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { getActiveSession } from './db/queries'
+import ActiveWorkout from './features/workout/ActiveWorkout'
 import TemplateEditor from './features/templates/TemplateEditor'
 import TemplatesScreen from './features/templates/TemplatesScreen'
 
@@ -15,13 +18,23 @@ function Placeholder({ title }: { title: string }) {
 
 export default function App() {
   const { pathname } = useLocation()
-  const editing = pathname.startsWith('/templates/')
+  const navigate = useNavigate()
+  const editing = pathname.startsWith('/templates/') || pathname.startsWith('/workout/')
+
+  // Resume an in-progress workout when the app opens.
+  useEffect(() => {
+    if (pathname !== '/') return
+    getActiveSession().then((s) => {
+      if (s) navigate(`/workout/${s.id}`, { replace: true })
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<TemplatesScreen />} />
+          <Route path="/workout/:id" element={<ActiveWorkout />} />
           <Route path="/templates/:id" element={<TemplateEditor />} />
           <Route path="/history" element={<Placeholder title="History" />} />
           <Route path="/exercises" element={<Placeholder title="Exercises" />} />

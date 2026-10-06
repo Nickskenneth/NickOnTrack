@@ -130,6 +130,7 @@ export async function startSessionFromTemplate(
         repMax: te.repMax,
         isTimed: te.isTimed,
         perSide: te.perSide,
+        note: te.note,
         sets: Array.from({ length: te.sets }, (_, index) => ({ index, completed: false })),
       })),
   }
@@ -154,4 +155,66 @@ export async function swapSessionExercise(
     ex.sets = ex.sets.map((s) => ({ index: s.index, completed: false }))
     await db.sessions.put(session)
   })
+}
+
+/** Persist a change to one set immediately. */
+export async function updateSessionSet(
+  sessionId: string,
+  order: number,
+  index: number,
+  patch: Partial<SessionSet>,
+  db: NickOnTrackDB = defaultDb,
+): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const session = await db.sessions.get(sessionId)
+    const set = session?.exercises.find((e) => e.order === order)?.sets.find((s) => s.index === index)
+    if (!session || !set) return
+    Object.assign(set, patch)
+    await db.sessions.put(session)
+  })
+}
+
+export async function addSessionSet(
+  sessionId: string,
+  order: number,
+  db: NickOnTrackDB = defaultDb,
+): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const session = await db.sessions.get(sessionId)
+    const ex = session?.exercises.find((e) => e.order === order)
+    if (!session || !ex) return
+    ex.sets.push({ index: ex.sets.length, completed: false })
+    await db.sessions.put(session)
+  })
+}
+
+/** Removes the last set (only if more than one remains). */
+export async function removeLastSessionSet(
+  sessionId: string,
+  order: number,
+  db: NickOnTrackDB = defaultDb,
+): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const session = await db.sessions.get(sessionId)
+    const ex = session?.exercises.find((e) => e.order === order)
+    if (!session || !ex || ex.sets.length <= 1) return
+    ex.sets.pop()
+    await db.sessions.put(session)
+  })
+}
+
+export async function updateSession(
+  sessionId: string,
+  patch: Partial<Pick<Session, 'name' | 'note'>>,
+  db: NickOnTrackDB = defaultDb,
+): Promise<void> {
+  await db.sessions.update(sessionId, patch)
+}
+
+export async function finishSession(sessionId: string, db: NickOnTrackDB = defaultDb): Promise<void> {
+  await db.sessions.update(sessionId, { finishedAt: Date.now() })
+}
+
+export async function discardSession(sessionId: string, db: NickOnTrackDB = defaultDb): Promise<void> {
+  await db.sessions.delete(sessionId)
 }

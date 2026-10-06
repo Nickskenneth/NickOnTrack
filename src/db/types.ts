@@ -48,6 +48,7 @@ export interface SessionExercise {
   repMax?: number
   isTimed?: boolean
   perSide?: boolean
+  note?: string // slot note copied from the template
   swappedFromExerciseId?: string // set when swapped for this session only
   sets: SessionSet[]
 }
