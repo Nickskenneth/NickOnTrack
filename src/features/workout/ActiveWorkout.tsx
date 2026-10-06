@@ -10,7 +10,11 @@ import {
   placeholderFor,
   updateSession,
 } from '../../db/queries'
+import { restAfterSet, skipRest, startRest } from '../../lib/restTimer'
+import { useWakeLock } from '../../lib/wakeLock'
+import type { SessionExercise, SessionSet } from '../../db/types'
 import ExerciseCard from './ExerciseCard'
+import RestTimerBar from './RestTimerBar'
 import { formatElapsed } from './setLogic'
 
 export default function ActiveWorkout() {
@@ -34,6 +38,8 @@ export default function ActiveWorkout() {
     return () => clearInterval(t)
   }, [])
 
+  useWakeLock(true) // keep the screen on while a workout is open (best-effort)
+
   if (session === undefined || !settings || !exercises) return null
   if (!session) return <p className="p-4 text-neutral-400">Workout not found.</p>
   if (session.finishedAt) {
@@ -50,6 +56,11 @@ export default function ActiveWorkout() {
   const total = sorted.reduce((n, e) => n + e.sets.length, 0)
   const done = sorted.reduce((n, e) => n + e.sets.filter((s) => s.completed).length, 0)
 
+  function handleSetCompleted(ex: SessionExercise, set: SessionSet) {
+    const seconds = restAfterSet(sorted, ex, set.index, settings!.defaultRestSeconds)
+    if (seconds !== null) void startRest(seconds)
+  }
+
   async function finish() {
     const remaining = total - done
     const msg = remaining
@@ -57,17 +68,19 @@ export default function ActiveWorkout() {
       : 'Finish this workout?'
     if (!window.confirm(msg)) return
     await finishSession(id)
+    await skipRest()
     navigate('/')
   }
 
   async function discard() {
     if (!window.confirm('Discard this workout? Everything logged in it will be deleted.')) return
     await discardSession(id)
+    await skipRest()
     navigate('/')
   }
 
   return (
-    <div className="p-4 pb-32">
+    <div className="p-4 pb-60">
       <div className="mb-3 flex items-center justify-between text-sm text-neutral-500">
         <span>{formatElapsed(now - session.startedAt)}</span>
         <span>
@@ -111,6 +124,7 @@ export default function ActiveWorkout() {
                 units={units}
                 groupPosition={groupPosition}
                 groupLabel={groupPosition === 'none' ? undefined : `${ex.supersetGroup}${position}`}
+                onSetCompleted={handleSetCompleted}
               />
             </div>
           )
@@ -128,13 +142,16 @@ export default function ActiveWorkout() {
         Discard workout
       </button>
 
-      <div className="fixed inset-x-0 bottom-0 flex gap-3 border-t border-neutral-800 bg-neutral-950 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <Link to="/" className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-neutral-800 font-medium">
-          Leave
-        </Link>
-        <button className="min-h-12 flex-[2] rounded-xl bg-emerald-500 font-semibold text-black" onClick={finish}>
-          Finish workout
-        </button>
+      <div className="fixed inset-x-0 bottom-0 border-t border-neutral-800 bg-neutral-950">
+        <RestTimerBar soundOn={settings.soundOn} />
+        <div className="flex gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <Link to="/" className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-neutral-800 font-medium">
+            Leave
+          </Link>
+          <button className="min-h-12 flex-[2] rounded-xl bg-emerald-500 font-semibold text-black" onClick={finish}>
+            Finish workout
+          </button>
+        </div>
       </div>
     </div>
   )

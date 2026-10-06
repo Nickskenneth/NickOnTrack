@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { updateSessionSet } from '../../db/queries'
 import type { SessionSet } from '../../db/types'
+import { unlockAudio } from '../../lib/audio'
 import { formatWeight, fromDisplay, parseNumber, type Units } from '../../lib/units'
 import { previousLabel, resolveCompletion } from './setLogic'
 
@@ -67,6 +68,7 @@ export default function SetRow({ sessionId, order, set, placeholder, units, isTi
     }
     const result = resolveCompletion(set, placeholder)
     if (!result.ok) return setInvalid(true)
+    unlockAudio() // inside a tap, so iOS allows the finish sound later
     const completedAt = Date.now()
     save({ weight: result.weight, reps: result.reps, completed: true, completedAt })
     onCompleted?.({ ...set, weight: result.weight, reps: result.reps, completed: true, completedAt })
