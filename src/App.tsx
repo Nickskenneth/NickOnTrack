@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { getActiveSession } from './db/queries'
+import UpdatePrompt from './components/UpdatePrompt'
 import ExerciseDetail from './features/exercises/ExerciseDetail'
 import ExercisesScreen from './features/exercises/ExercisesScreen'
 import HistoryDetail from './features/history/HistoryDetail'
@@ -32,6 +33,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
+      <UpdatePrompt />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<TemplatesScreen />} />
