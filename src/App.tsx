@@ -34,6 +34,8 @@ export default function App() {
   return (
     <div className="flex min-h-screen flex-col pb-20">
       <UpdatePrompt />
+      {/* Opaque cover for the iPhone status-bar area so scrolled content doesn't show behind it */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-neutral-950" />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<TemplatesScreen />} />

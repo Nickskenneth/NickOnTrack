@@ -81,11 +81,24 @@ export default function ActiveWorkout() {
 
   return (
     <div className="p-4 pb-60">
-      <div className="mb-3 flex items-center justify-between text-sm text-neutral-500">
-        <span>{formatElapsed(now - session.startedAt)}</span>
-        <span>
-          {done}/{total} sets
-        </span>
+      <div className="sticky top-[env(safe-area-inset-top)] z-10 -mx-4 mb-3 border-b border-neutral-700 bg-neutral-950/95 px-4 pb-2 pt-2 backdrop-blur">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">Workout time</p>
+            <p className="text-3xl font-bold tabular-nums leading-none text-emerald-400">
+              {formatElapsed(now - session.startedAt)}
+            </p>
+          </div>
+          <p className="text-lg font-semibold tabular-nums text-neutral-200">
+            {done}/{total} <span className="text-sm font-normal text-neutral-400">sets</span>
+          </p>
+          <button className="min-h-11 rounded-lg px-2 text-sm font-medium text-red-400" onClick={discard}>
+            Discard
+          </button>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-700">
+          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+        </div>
       </div>
 
       <input

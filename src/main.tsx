@@ -4,7 +4,10 @@ import { HashRouter } from 'react-router-dom'
 import App from './App'
 import { db } from './db/db'
 import { seedIfNeeded } from './db/seed'
+import { installAudioUnlock } from './lib/audio'
 import './index.css'
+
+installAudioUnlock()
 
 // Ask the browser not to evict our data (best-effort; may be ignored).
 void navigator.storage?.persist?.().catch(() => {})

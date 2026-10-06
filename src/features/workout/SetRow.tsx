@@ -16,7 +16,7 @@ interface Props {
 }
 
 const input =
-  'h-12 w-full rounded-lg bg-neutral-800 px-2 text-center text-lg font-semibold text-neutral-100 outline-none focus:ring-2 focus:ring-emerald-500 placeholder:font-normal placeholder:text-neutral-500'
+  'h-12 w-full rounded-lg bg-neutral-900 px-2 text-center text-lg font-semibold text-neutral-100 outline-none focus:ring-2 focus:ring-emerald-500 placeholder:font-normal placeholder:text-neutral-500'
 
 const weightText = (kg: number | undefined, units: Units) => (kg === undefined ? '' : formatWeight(kg, units))
 const repsText = (n: number | undefined) => (n === undefined ? '' : String(n))
@@ -79,12 +79,12 @@ export default function SetRow({ sessionId, order, set, placeholder, units, isTi
   return (
     <div
       className={`grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] items-center gap-2 rounded-lg px-1 py-1 ${
-        set.completed ? 'bg-emerald-500/10' : ''
+        set.completed ? 'bg-emerald-500/20' : ''
       }`}
     >
       <span className="text-center font-semibold text-neutral-400">{set.index + 1}</span>
       <button
-        className="min-h-11 truncate text-left text-sm text-neutral-500 disabled:cursor-default"
+        className="min-h-11 truncate text-left text-sm text-neutral-300 disabled:cursor-default"
         disabled={!placeholder}
         onClick={copyPrevious}
         aria-label="Copy previous values"
@@ -109,7 +109,7 @@ export default function SetRow({ sessionId, order, set, placeholder, units, isTi
       />
       <button
         className={`flex size-12 items-center justify-center rounded-lg text-xl font-bold ${
-          set.completed ? 'bg-emerald-500 text-black' : 'bg-neutral-800 text-neutral-500'
+          set.completed ? 'bg-emerald-500 text-black' : 'bg-neutral-700 text-neutral-300'
         }`}
         onClick={toggle}
         aria-label={set.completed ? 'Mark set incomplete' : 'Complete set'}

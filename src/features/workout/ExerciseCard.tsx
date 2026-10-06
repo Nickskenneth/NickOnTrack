@@ -57,7 +57,7 @@ export default function ExerciseCard({
 
   return (
     <section
-      className={`rounded-xl bg-neutral-900 p-3 ${radius} ${inGroup ? 'border-l-4 border-emerald-500' : ''}`}
+      className={`rounded-xl border border-neutral-700 bg-neutral-800 p-3 ${radius} ${inGroup ? 'border-l-4 border-emerald-500' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -69,13 +69,13 @@ export default function ExerciseCard({
             )}
             {exercise?.name ?? '…'}
           </h3>
-          {target && <p className="text-sm text-neutral-500">{target}</p>}
+          {target && <p className="text-sm text-neutral-300">{target}</p>}
           {ex.swappedFromExerciseId && originalName && (
             <p className="text-xs text-amber-400">Swapped for this workout (was {originalName})</p>
           )}
         </div>
         <button
-          className="min-h-11 shrink-0 rounded-lg bg-neutral-800 px-3 text-sm font-medium active:bg-neutral-700"
+          className="min-h-11 shrink-0 rounded-lg bg-neutral-700 px-3 text-sm font-medium active:bg-neutral-600"
           onClick={() => setPicker(true)}
         >
           Swap
@@ -83,13 +83,13 @@ export default function ExerciseCard({
       </div>
 
       {(exercise?.note || ex.note) && !editingNote && (
-        <p className="mt-1 whitespace-pre-line rounded-lg bg-neutral-800/60 px-2 py-1.5 text-sm text-amber-200/90">
+        <p className="mt-1 whitespace-pre-line rounded-lg bg-neutral-900 px-2 py-1.5 text-sm text-amber-200">
           {[exercise?.note, ex.note].filter(Boolean).join('\n')}
         </p>
       )}
       {editingNote && exercise && (
         <textarea
-          className="mt-1 min-h-20 w-full rounded-lg bg-neutral-800 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 min-h-20 w-full rounded-lg bg-neutral-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-emerald-500"
           placeholder="Note that follows this exercise (e.g. pins at hole 4)"
           autoFocus
           defaultValue={exercise.note ?? ''}
@@ -102,7 +102,7 @@ export default function ExerciseCard({
         </button>
       )}
 
-      <div className="mt-2 grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] gap-2 px-1 text-xs uppercase tracking-wide text-neutral-600">
+      <div className="mt-2 grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] gap-2 px-1 text-xs uppercase tracking-wide text-neutral-400">
         <span className="text-center">Set</span>
         <span>Previous</span>
         <span className="text-center">{units}</span>
@@ -126,14 +126,14 @@ export default function ExerciseCard({
 
       <div className="mt-2 flex gap-2">
         <button
-          className="min-h-11 flex-1 rounded-lg bg-neutral-800 text-sm font-medium active:bg-neutral-700"
+          className="min-h-11 flex-1 rounded-lg bg-neutral-700 text-sm font-medium active:bg-neutral-600"
           onClick={() => addSessionSet(sessionId, ex.order)}
         >
           + Add set
         </button>
         {ex.sets.length > 1 && (
           <button
-            className="min-h-11 rounded-lg bg-neutral-800 px-4 text-sm text-neutral-400 active:bg-neutral-700"
+            className="min-h-11 rounded-lg bg-neutral-700 px-4 text-sm text-neutral-300 active:bg-neutral-600"
             onClick={() => removeLastSessionSet(sessionId, ex.order)}
           >
             − Remove last

@@ -28,9 +28,14 @@ export default function HistoryDetail() {
 
   return (
     <div className="p-4">
-      <Link to="/history" className="text-sm text-emerald-400">
-        &larr; History
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link to="/history" className="flex min-h-11 items-center text-sm text-emerald-400">
+          &larr; History
+        </Link>
+        <button className="min-h-11 rounded-lg px-3 text-sm font-medium text-red-400" onClick={remove}>
+          Delete workout
+        </button>
+      </div>
 
       <input
         className="mt-2 w-full rounded-lg bg-neutral-900 px-3 py-3 text-xl font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -53,7 +58,7 @@ export default function HistoryDetail() {
         {sorted.map((ex) => {
           const exercise = byId.get(ex.exerciseId)
           return (
-            <section key={ex.order} className="rounded-xl bg-neutral-900 p-3">
+            <section key={ex.order} className="rounded-xl border border-neutral-700 bg-neutral-800 p-3">
               <Link to={`/exercises/${ex.exerciseId}`} className="text-lg font-semibold">
                 {exercise?.name ?? 'Deleted exercise'}
               </Link>
@@ -63,7 +68,7 @@ export default function HistoryDetail() {
                   Swapped (was {byId.get(ex.swappedFromExerciseId)?.name ?? 'another exercise'})
                 </p>
               )}
-              <div className="mt-2 grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] gap-2 px-1 text-xs uppercase tracking-wide text-neutral-600">
+              <div className="mt-2 grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] gap-2 px-1 text-xs uppercase tracking-wide text-neutral-400">
                 <span className="text-center">Set</span>
                 <span />
                 <span className="text-center">{units}</span>

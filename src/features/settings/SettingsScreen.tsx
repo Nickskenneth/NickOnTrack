@@ -11,6 +11,7 @@ import {
   type BackupFile,
 } from '../../lib/backup'
 import type { Settings } from '../../db/types'
+import { playBeep, unlockAudio } from '../../lib/audio'
 
 const card = 'rounded-xl bg-neutral-900 p-4'
 const heading = 'mb-2 mt-6 text-sm font-semibold uppercase tracking-wide text-neutral-500'
@@ -133,6 +134,18 @@ export default function SettingsScreen() {
             onChange={(e) => update({ soundOn: e.target.checked })}
           />
         </label>
+        <button
+          className="min-h-12 rounded-xl bg-neutral-700 font-semibold"
+          onClick={() => {
+            unlockAudio()
+            void playBeep()
+          }}
+        >
+          Test sound
+        </button>
+        <p className="-mt-1 text-xs text-neutral-500">
+          No sound? Check the silent switch on the side of your iPhone, and the volume.
+        </p>
       </div>
 
       <h2 className={heading}>Backup</h2>
