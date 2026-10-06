@@ -1,6 +1,10 @@
 import { useEffect } from 'react'
 import { NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { getActiveSession } from './db/queries'
+import ExerciseDetail from './features/exercises/ExerciseDetail'
+import ExercisesScreen from './features/exercises/ExercisesScreen'
+import HistoryDetail from './features/history/HistoryDetail'
+import HistoryScreen from './features/history/HistoryScreen'
 import ActiveWorkout from './features/workout/ActiveWorkout'
 import TemplateEditor from './features/templates/TemplateEditor'
 import TemplatesScreen from './features/templates/TemplatesScreen'
@@ -36,8 +40,10 @@ export default function App() {
           <Route path="/" element={<TemplatesScreen />} />
           <Route path="/workout/:id" element={<ActiveWorkout />} />
           <Route path="/templates/:id" element={<TemplateEditor />} />
-          <Route path="/history" element={<Placeholder title="History" />} />
-          <Route path="/exercises" element={<Placeholder title="Exercises" />} />
+          <Route path="/history" element={<HistoryScreen />} />
+          <Route path="/history/:id" element={<HistoryDetail />} />
+          <Route path="/exercises" element={<ExercisesScreen />} />
+          <Route path="/exercises/:id" element={<ExerciseDetail />} />
           <Route path="/settings" element={<Placeholder title="Settings" />} />
         </Routes>
       </main>

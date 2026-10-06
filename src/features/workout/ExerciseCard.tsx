@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { db } from '../../db/db'
 import { addSessionSet, removeLastSessionSet, swapSessionExercise } from '../../db/queries'
 import type { Exercise, SessionExercise, SessionSet } from '../../db/types'
 import type { Units } from '../../lib/units'
@@ -31,6 +32,7 @@ export default function ExerciseCard({
   onSetCompleted,
 }: Props) {
   const [picker, setPicker] = useState(false)
+  const [editingNote, setEditingNote] = useState(false)
   const inGroup = groupPosition !== 'none'
 
   const range = ex.repMin !== undefined && ex.repMax !== undefined
@@ -80,10 +82,24 @@ export default function ExerciseCard({
         </button>
       </div>
 
-      {(exercise?.note || ex.note) && (
+      {(exercise?.note || ex.note) && !editingNote && (
         <p className="mt-1 whitespace-pre-line rounded-lg bg-neutral-800/60 px-2 py-1.5 text-sm text-amber-200/90">
           {[exercise?.note, ex.note].filter(Boolean).join('\n')}
         </p>
+      )}
+      {editingNote && exercise && (
+        <textarea
+          className="mt-1 min-h-20 w-full rounded-lg bg-neutral-800 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-emerald-500"
+          placeholder="Note that follows this exercise (e.g. pins at hole 4)"
+          autoFocus
+          defaultValue={exercise.note ?? ''}
+          onChange={(e) => db.exercises.update(exercise.id, { note: e.target.value.trim() || undefined })}
+        />
+      )}
+      {exercise && (
+        <button className="min-h-9 text-xs text-emerald-400" onClick={() => setEditingNote(!editingNote)}>
+          {editingNote ? 'Done' : exercise.note ? 'Edit note' : '+ Add note'}
+        </button>
       )}
 
       <div className="mt-2 grid grid-cols-[1.75rem_1fr_4.25rem_4.25rem_3rem] gap-2 px-1 text-xs uppercase tracking-wide text-neutral-600">
