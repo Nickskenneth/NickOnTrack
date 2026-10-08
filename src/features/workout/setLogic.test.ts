@@ -40,3 +40,29 @@ describe('labels and units', () => {
     expect(formatElapsed(3_725_000)).toBe('1:02:05')
   })
 })
+
+import { parseSum } from '../../lib/units'
+import { formatRest, parseRestSeconds } from '../../lib/duration'
+
+describe('sums and rest input', () => {
+  it('adds typed parts', () => {
+    expect(parseSum('20+2.5')).toBe(22.5)
+    expect(parseSum('20+2.5+1,25')).toBe(23.75)
+    expect(parseSum('0.1+0.2')).toBe(0.3)
+  })
+  it('ignores a trailing plus, rejects garbage', () => {
+    expect(parseSum('20+')).toBe(20)
+    expect(parseSum('+')).toBeUndefined()
+    expect(parseSum('')).toBeUndefined()
+    expect(parseSum('20+abc')).toBeUndefined()
+  })
+  it('rest seconds', () => {
+    expect(formatRest(150)).toBe('2:30')
+    expect(formatRest(75)).toBe('1:15')
+    expect(parseRestSeconds('150')).toBe(150)
+    expect(parseRestSeconds('4')).toBeUndefined()
+    expect(parseRestSeconds('99999')).toBeUndefined()
+    expect(parseRestSeconds('1.5')).toBeUndefined()
+    expect(parseRestSeconds('')).toBeUndefined()
+  })
+})

@@ -42,6 +42,15 @@ Settings -> **Export backup** saves a JSON file (share sheet on iPhone: save to 
 **Import backup** offers Merge or Replace. The app reminds you after 14 days without a backup.
 Browser storage can be cleared by the OS or the user, so back up regularly.
 
+## Rest-over notifications (optional)
+
+iOS web apps can't run timers in the background, so NickOnTrack can ask the free
+[ntfy](https://ntfy.sh) service to deliver a "Rest over" notification to the ntfy iPhone app.
+Settings -> Rest-over notifications -> Set up, then follow the 4 steps (install ntfy, subscribe to your
+private topic, allow notifications, send a test). The notification is scheduled when a set is
+checked, replaced on +15/-15, and cancelled on Skip or when you're looking at the app.
+Only the words "Rest over" are sent. It needs a signal and can arrive a few seconds late.
+
 ## Known limitations
 
 - iOS web apps cannot reliably vibrate or play sound with a locked screen or in the background.

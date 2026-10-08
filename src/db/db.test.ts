@@ -83,3 +83,19 @@ describe('sessions', () => {
     expect((await db.templates.get(t.id))!.exercises[0].exerciseId).toBe(t.exercises[0].exerciseId)
   })
 })
+
+import { setSessionRest } from './queries'
+
+describe('manual rest', () => {
+  it('changes this workout, and the template only when asked', async () => {
+    const t = (await db.templates.toArray())[0]
+    const s = await startSessionFromTemplate(t.id, db)
+    await setSessionRest(s.id, 1, 200, false, db)
+    expect((await db.sessions.get(s.id))!.exercises[1].restSeconds).toBe(200)
+    expect((await db.templates.get(t.id))!.exercises[1].restSeconds).toBe(t.exercises[1].restSeconds)
+
+    await setSessionRest(s.id, 1, 220, true, db)
+    expect((await db.sessions.get(s.id))!.exercises[1].restSeconds).toBe(220)
+    expect((await db.templates.get(t.id))!.exercises[1].restSeconds).toBe(220)
+  })
+})

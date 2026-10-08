@@ -22,3 +22,22 @@ export function parseNumber(text: string): number | undefined {
   const n = Number(text.trim().replace(',', '.'))
   return text.trim() === '' || !Number.isFinite(n) || n < 0 ? undefined : n
 }
+
+/**
+ * Adds typed parts split on "+": "20+2.5" -> 22.5. An empty part is ignored, so a
+ * half-typed "20+" counts as 20. Any invalid part -> undefined.
+ */
+export function parseSum(text: string): number | undefined {
+  const parts = text
+    .split('+')
+    .map((p) => p.trim())
+    .filter((p) => p !== '')
+  if (parts.length === 0) return undefined
+  let total = 0
+  for (const part of parts) {
+    const n = parseNumber(part)
+    if (n === undefined) return undefined
+    total += n
+  }
+  return Math.round(total * 1000) / 1000
+}

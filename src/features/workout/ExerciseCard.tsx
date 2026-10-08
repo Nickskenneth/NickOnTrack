@@ -4,6 +4,7 @@ import { addSessionSet, removeLastSessionSet, swapSessionExercise } from '../../
 import type { Exercise, SessionExercise, SessionSet } from '../../db/types'
 import type { Units } from '../../lib/units'
 import ExercisePicker from '../exercises/ExercisePicker'
+import RestEditor from './RestEditor'
 import SetRow from './SetRow'
 
 interface Props {
@@ -16,6 +17,8 @@ interface Props {
   units: Units
   groupPosition: 'none' | 'start' | 'middle' | 'end'
   groupLabel?: string
+  restLabel?: string // undefined = this exercise doesn't start a timer (first half of a superset)
+  hasTemplate?: boolean
   onSetCompleted?: (ex: SessionExercise, set: SessionSet) => void
 }
 
@@ -29,6 +32,8 @@ export default function ExerciseCard({
   units,
   groupPosition,
   groupLabel,
+  restLabel,
+  hasTemplate,
   onSetCompleted,
 }: Props) {
   const [picker, setPicker] = useState(false)
@@ -81,6 +86,16 @@ export default function ExerciseCard({
           Swap
         </button>
       </div>
+
+      {restLabel && (
+        <RestEditor
+          sessionId={sessionId}
+          order={ex.order}
+          seconds={ex.restSeconds}
+          label={restLabel}
+          canSaveToTemplate={!!hasTemplate}
+        />
+      )}
 
       {(exercise?.note || ex.note) && !editingNote && (
         <p className="mt-1 whitespace-pre-line rounded-lg bg-neutral-900 px-2 py-1.5 text-sm text-amber-200">

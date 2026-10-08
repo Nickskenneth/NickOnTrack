@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
 import { playBeep } from '../../lib/audio'
-import { adjustRest, getRest, remainingMs, skipRest } from '../../lib/restTimer'
+import { adjustRestNotified, cancelRestNotification, skipRestNotified } from '../../lib/restNotify'
+import { getRest, remainingMs, skipRest } from '../../lib/restTimer'
 
 const mmss = (ms: number) => {
   const s = Math.ceil(ms / 1000)
@@ -25,7 +26,10 @@ export default function RestTimerBar({ soundOn }: { soundOn: boolean }) {
     if (!timer || now < timer.endsAt || firedFor.current === timer.endsAt) return
     firedFor.current = timer.endsAt
     // Only alert if it just finished and the app is visible (iOS can't alert in the background).
-    if (soundOn && now - timer.endsAt < 5000 && document.visibilityState === 'visible') playBeep()
+    if (now - timer.endsAt < 5000 && document.visibilityState === 'visible') {
+      if (soundOn) void playBeep()
+      void cancelRestNotification() // you're looking at the app, so skip the push notification
+    }
   }, [now, timer, soundOn])
 
   useEffect(() => {
@@ -54,13 +58,13 @@ export default function RestTimerBar({ soundOn }: { soundOn: boolean }) {
             {over ? 'Go!' : mmss(left)}
           </p>
         </div>
-        <button className={btn} onClick={() => adjustRest(-15)} aria-label="Subtract 15 seconds">
+        <button className={btn} onClick={() => adjustRestNotified(-15)} aria-label="Subtract 15 seconds">
           −15
         </button>
-        <button className={btn} onClick={() => adjustRest(15)} aria-label="Add 15 seconds">
+        <button className={btn} onClick={() => adjustRestNotified(15)} aria-label="Add 15 seconds">
           +15
         </button>
-        <button className={`${btn} text-emerald-400`} onClick={() => skipRest()}>
+        <button className={`${btn} text-emerald-400`} onClick={() => skipRestNotified()}>
           Skip
         </button>
       </div>

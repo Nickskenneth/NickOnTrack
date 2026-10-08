@@ -12,6 +12,7 @@ import {
 } from '../../lib/backup'
 import type { Settings } from '../../db/types'
 import { playBeep, unlockAudio } from '../../lib/audio'
+import { cancelRestNotificationFor, generateTopic, sendTestNotification } from '../../lib/restNotify'
 
 const card = 'rounded-xl bg-neutral-900 p-4'
 const heading = 'mb-2 mt-6 text-sm font-semibold uppercase tracking-wide text-neutral-500'
@@ -36,6 +37,7 @@ export default function SettingsScreen() {
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [pending, setPending] = useState<BackupFile | null>(null)
   const [persisted, setPersisted] = useState<boolean | null>(null)
+  const [notifyMsg, setNotifyMsg] = useState<string | null>(null)
 
   useEffect(() => {
     if (settings) setRestText((t) => (t === '' ? String(settings.defaultRestSeconds) : t))
@@ -45,6 +47,34 @@ export default function SettingsScreen() {
   }, [])
 
   if (!settings) return null
+
+  async function turnOffNotifications() {
+    if (!window.confirm('Turn off rest-over notifications? You can switch them on again later.')) return
+    const topic = settings?.ntfyTopic
+    await update({ ntfyTopic: undefined })
+    setNotifyMsg(null)
+    if (topic) void cancelRestNotificationFor(topic) // best-effort, in the background
+  }
+
+  async function testNotification() {
+    if (!settings?.ntfyTopic) return
+    setNotifyMsg('Sending…')
+    const ok = await sendTestNotification(settings.ntfyTopic)
+    setNotifyMsg(
+      ok
+        ? 'Sent. It should appear on this phone within a few seconds. Nothing? Check steps 2 and 3 above.'
+        : "Couldn't reach the notification service. Check your connection and try again.",
+    )
+  }
+
+  async function copyTopic() {
+    try {
+      await navigator.clipboard.writeText(settings?.ntfyTopic ?? '')
+      setNotifyMsg('Topic copied.')
+    } catch {
+      setNotifyMsg('Copy failed. Select the topic text and copy it manually.')
+    }
+  }
 
   async function exportBackup() {
     setMessage(null)
@@ -145,6 +175,56 @@ export default function SettingsScreen() {
         </button>
         <p className="-mt-1 text-xs text-neutral-500">
           No sound? Check the silent switch on the side of your iPhone, and the volume.
+        </p>
+      </div>
+
+      <h2 className={heading}>Rest-over notifications</h2>
+      <div className={card}>
+        <p className="text-sm text-neutral-300">
+          Get a notification when your rest ends, even with NickOnTrack closed or the phone locked. It uses the free{' '}
+          <span className="font-semibold">ntfy</span> app.
+        </p>
+        {!settings.ntfyTopic ? (
+          <button
+            className={`${action} mt-3 bg-emerald-500 text-black`}
+            onClick={() => update({ ntfyTopic: generateTopic() })}
+          >
+            Set up notifications
+          </button>
+        ) : (
+          <>
+            <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-300">
+              <li>
+                Install the free <span className="font-semibold">ntfy</span> app from the App Store.
+              </li>
+              <li>
+                In ntfy tap <span className="font-semibold">+</span> and enter this topic exactly. Leave the server as
+                the default (ntfy.sh).
+              </li>
+              <li>Allow notifications for ntfy when iPhone asks.</li>
+              <li>Tap "Send test notification" below.</li>
+            </ol>
+            <p className="mt-3 break-all rounded-lg bg-neutral-900 p-3 font-mono text-sm text-emerald-300">
+              {settings.ntfyTopic}
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button className={`${action} bg-neutral-700`} onClick={copyTopic}>
+                Copy topic
+              </button>
+              <button className={`${action} bg-emerald-500 text-black`} onClick={testNotification}>
+                Send test notification
+              </button>
+            </div>
+            <button className="mt-2 min-h-11 w-full text-sm text-red-400" onClick={turnOffNotifications}>
+              Turn off notifications
+            </button>
+          </>
+        )}
+        {notifyMsg && <p className="mt-2 text-sm text-neutral-300">{notifyMsg}</p>}
+        <p className="mt-3 text-xs text-neutral-500">
+          Only the words "Rest over" are sent, never your workouts. Needs a signal, and can arrive a few seconds late.
+          Keep the topic private: anyone with it could send you notifications. It is saved in backups. If NickOnTrack
+          is open on screen when the rest ends, you get the in-app beep instead.
         </p>
       </div>
 

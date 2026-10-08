@@ -69,6 +69,7 @@ export interface Settings {
   soundOn: boolean
   defaultRestSeconds: number
   lastBackupAt?: number
+  ntfyTopic?: string // private topic for rest-over push notifications (ntfy app)
 }
 
 export interface MetaRow {

@@ -157,6 +157,38 @@ export async function swapSessionExercise(
   })
 }
 
+/**
+ * Change the rest for one exercise in a workout. Optionally also save it into the
+ * template slot it came from, so it sticks for next time.
+ */
+export async function setSessionRest(
+  sessionId: string,
+  order: number,
+  seconds: number,
+  saveToTemplate: boolean,
+  db: NickOnTrackDB = defaultDb,
+): Promise<void> {
+  await db.transaction('rw', db.sessions, db.templates, async () => {
+    const session = await db.sessions.get(sessionId)
+    const ex = session?.exercises.find((e) => e.order === order)
+    if (!session || !ex) return
+    ex.restSeconds = seconds
+    await db.sessions.put(session)
+
+    if (!saveToTemplate || !session.templateId) return
+    const template = await db.templates.get(session.templateId)
+    const original = ex.swappedFromExerciseId ?? ex.exerciseId
+    const slot =
+      template?.exercises.find((e) => e.exerciseId === original && e.order === order) ??
+      template?.exercises.find((e) => e.exerciseId === original)
+    if (template && slot) {
+      slot.restSeconds = seconds
+      template.updatedAt = Date.now()
+      await db.templates.put(template)
+    }
+  })
+}
+
 /** Persist a change to one set immediately. */
 export async function updateSessionSet(
   sessionId: string,

@@ -10,7 +10,8 @@ import {
   placeholderFor,
   updateSession,
 } from '../../db/queries'
-import { restAfterSet, skipRest, startRest } from '../../lib/restTimer'
+import { skipRestNotified, startRestNotified } from '../../lib/restNotify'
+import { restAfterSet } from '../../lib/restTimer'
 import { useWakeLock } from '../../lib/wakeLock'
 import type { SessionExercise, SessionSet } from '../../db/types'
 import ExerciseCard from './ExerciseCard'
@@ -58,7 +59,7 @@ export default function ActiveWorkout() {
 
   function handleSetCompleted(ex: SessionExercise, set: SessionSet) {
     const seconds = restAfterSet(sorted, ex, set.index, settings!.defaultRestSeconds)
-    if (seconds !== null) void startRest(seconds)
+    if (seconds !== null) void startRestNotified(seconds)
   }
 
   async function finish() {
@@ -68,14 +69,14 @@ export default function ActiveWorkout() {
       : 'Finish this workout?'
     if (!window.confirm(msg)) return
     await finishSession(id)
-    await skipRest()
+    void skipRestNotified() // don't make leaving wait on the network
     navigate('/')
   }
 
   async function discard() {
     if (!window.confirm('Discard this workout? Everything logged in it will be deleted.')) return
     await discardSession(id)
-    await skipRest()
+    void skipRestNotified() // don't make leaving wait on the network
     navigate('/')
   }
 
@@ -137,6 +138,8 @@ export default function ActiveWorkout() {
                 units={units}
                 groupPosition={groupPosition}
                 groupLabel={groupPosition === 'none' ? undefined : `${ex.supersetGroup}${position}`}
+                restLabel={nextInGroup ? undefined : prevInGroup ? 'Rest after pair' : 'Rest'}
+                hasTemplate={!!session.templateId}
                 onSetCompleted={handleSetCompleted}
               />
             </div>
